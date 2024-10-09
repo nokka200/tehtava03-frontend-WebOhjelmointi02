@@ -3,10 +3,10 @@ export const UrheilijaContext = createContext();
 
 
 export const UrheilijaProvider = ({ children }) => {
-  const [urheilija, setUrheilija] = useState([]);
+  const [urheilijat, setUrheilijat] = useState([]);
 
   return (
-    <UrheilijaContext.Provider value={{ urheilija, setUrheilija }}>
+    <UrheilijaContext.Provider value={{ urheilijat, setUrheilijat }}>
       {children}
     </UrheilijaContext.Provider>
   );

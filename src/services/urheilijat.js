@@ -7,4 +7,9 @@ const getAll = async () => {
   return response.data;
 };
 
-export { getAll };
+const postUrheilija = async (newUrheilija) => {
+  const response = await axios.post(baseUrl, newUrheilija);
+  return response.data;
+};
+
+export { getAll, postUrheilija };
