@@ -1,9 +1,9 @@
-import { Form, Modal, Button } from "react-bootstrap"
-import { useState, useContext } from "react";
-import { postUrheilija } from "../services/urheilijat";
+import { Form, Modal, Button } from "react-bootstrap";
+import { useState, useContext, useEffect } from "react";
+import { postUrheilija, updateUrheilija } from "../services/urheilijat";
 import { UrheilijaContext } from "../context/UrheilijaContext";
 
-const UrheilijaModal = ({ show, close }) => {
+const UrheilijaModal = ({ show, close, initialData }) => {
   const { urheilijat, setUrheilijat } = useContext(UrheilijaContext);
   const [urheilijaInfo, setUrheilijaInfo] = useState({
     etunimi: '',
@@ -16,19 +16,62 @@ const UrheilijaModal = ({ show, close }) => {
     saavutukset: ''
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('info', urheilijaInfo);
-    const newUrheilija = await postUrheilija(urheilijaInfo);
-    setUrheilijat([...urheilijat, newUrheilija.data]);
-    close();
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
   };
 
+  useEffect(() => {
+    console.log('in effect', initialData);
+    console.log('urheilijaInfo', urheilijaInfo);
+    if (initialData) {
+      console.log('in effect if', initialData);
+      setUrheilijaInfo({
+        ...initialData,
+        syntymavuosi: formatDate(initialData.syntymavuosi)
+      });
+    } else {
+      setUrheilijaInfo({
+        etunimi: '',
+        sukunimi: '',
+        kutsumanimi: '',
+        syntymavuosi: '',
+        paino: '',
+        linkkiKuvaan: '',
+        laji: '',
+        saavutukset: ''
+      });
+    }
+  }, [initialData]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (initialData) {
+      // Update existing athlete
+      const updatedUrheilija = await updateUrheilija(urheilijaInfo);
+      setUrheilijat(urheilijat.map(urheilija => urheilija.id === updatedUrheilija.data.id ? updatedUrheilija.data : urheilija));
+    } else {
+      // Add new athlete
+      const newUrheilija = await postUrheilija(urheilijaInfo);
+      setUrheilijat([...urheilijat, newUrheilija.data]);
+    }
+    close();
+    setUrheilijaInfo({
+      etunimi: '',
+      sukunimi: '',
+      kutsumanimi: '',
+      syntymavuosi: '',
+      paino: '',
+      linkkiKuvaan: '',
+      laji: '',
+      saavutukset: ''
+    });
+  };
 
   return (
     <Modal show={show} onHide={close} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Lisää Urheilija</Modal.Title>
+        <Modal.Title>{initialData ? "Muokkaa Urheilijaa" : "Lisää Urheilija"}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
@@ -36,7 +79,7 @@ const UrheilijaModal = ({ show, close }) => {
             <Form.Label>Etunimi</Form.Label>
             <Form.Control
               type='text'
-              placeholder={urheilijaInfo.etunimi}
+              placeholder="Etunimi"
               value={urheilijaInfo.etunimi}
               onChange={(e) => setUrheilijaInfo({ ...urheilijaInfo, etunimi: e.target.value })}
             />
@@ -45,7 +88,7 @@ const UrheilijaModal = ({ show, close }) => {
             <Form.Label>Sukunimi</Form.Label>
             <Form.Control
               type='text'
-              placeholder={urheilijaInfo.sukunimi}
+              placeholder="Sukunimi"
               value={urheilijaInfo.sukunimi}
               onChange={(e) => setUrheilijaInfo({ ...urheilijaInfo, sukunimi: e.target.value })}
             />
@@ -54,7 +97,7 @@ const UrheilijaModal = ({ show, close }) => {
             <Form.Label>Kutsumanimi</Form.Label>
             <Form.Control
               type='text'
-              placeholder={urheilijaInfo.kutsumanimi}
+              placeholder="Kutsumanimi"
               value={urheilijaInfo.kutsumanimi}
               onChange={(e) => setUrheilijaInfo({ ...urheilijaInfo, kutsumanimi: e.target.value })}
             />
@@ -63,7 +106,7 @@ const UrheilijaModal = ({ show, close }) => {
             <Form.Label>Syntymävuosi</Form.Label>
             <Form.Control
               type='date'
-              placeholder={urheilijaInfo.syntymavuosi}
+              placeholder="Syntymävuosi"
               value={urheilijaInfo.syntymavuosi}
               onChange={(e) => setUrheilijaInfo({ ...urheilijaInfo, syntymavuosi: e.target.value })}
             />
@@ -72,7 +115,7 @@ const UrheilijaModal = ({ show, close }) => {
             <Form.Label>Paino</Form.Label>
             <Form.Control
               type='text'
-              placeholder={urheilijaInfo.paino}
+              placeholder="Paino"
               value={urheilijaInfo.paino}
               onChange={(e) => setUrheilijaInfo({ ...urheilijaInfo, paino: e.target.value })}
             />
@@ -81,7 +124,7 @@ const UrheilijaModal = ({ show, close }) => {
             <Form.Label>Linkki kuvaan</Form.Label>
             <Form.Control
               type='text'
-              placeholder={urheilijaInfo.linkkiKuvaan}
+              placeholder="Linkki kuvaan"
               value={urheilijaInfo.linkkiKuvaan}
               onChange={(e) => setUrheilijaInfo({ ...urheilijaInfo, linkkiKuvaan: e.target.value })}
             />
@@ -90,7 +133,7 @@ const UrheilijaModal = ({ show, close }) => {
             <Form.Label>Laji</Form.Label>
             <Form.Control
               type='text'
-              placeholder={urheilijaInfo.laji}
+              placeholder="Laji"
               value={urheilijaInfo.laji}
               onChange={(e) => setUrheilijaInfo({ ...urheilijaInfo, laji: e.target.value })}
             />
@@ -99,16 +142,16 @@ const UrheilijaModal = ({ show, close }) => {
             <Form.Label>Saavutukset</Form.Label>
             <Form.Control
               type='text'
-              placeholder={urheilijaInfo.saavutukset}
+              placeholder="Saavutukset"
               value={urheilijaInfo.saavutukset}
               onChange={(e) => setUrheilijaInfo({ ...urheilijaInfo, saavutukset: e.target.value })}
             />
           </Form.Group>
-          <Button variant="primary" type='submit'>Lisää urheilija</Button>
+          <Button variant="primary" type='submit'>{initialData ? "Päivitä urheilija" : "Lisää urheilija"}</Button>
         </Form>
       </Modal.Body>
     </Modal>
-  )
+  );
 };
 
 export default UrheilijaModal;

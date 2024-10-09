@@ -17,4 +17,9 @@ const deleteUrheilija = async (id) => {
   return response.data;
 }
 
-export { getAll, postUrheilija, deleteUrheilija };
+const updateUrheilija = async (urheilija) => {
+  const response = await axios.put(`${baseUrl}/${urheilija.id}`, urheilija);
+  return response.data;
+};
+
+export { getAll, postUrheilija, deleteUrheilija, updateUrheilija };
