@@ -1,8 +1,9 @@
 import { Container, Row, Col, Card, Button } from "react-bootstrap"
 import { useEffect, useState, useContext } from "react";
-import { getAll } from "./services/urheilijat.js"
+import { getAll, deleteUrheilija } from "./services/urheilijat.js"
 import { UrheilijaContext } from "./context/UrheilijaContext"
 import UrheilijaModal from "./components/UrheilijaModal.jsx";
+
 
 function App() {
   const urheilijaContext = useContext(UrheilijaContext);
@@ -40,6 +41,10 @@ function App() {
 
   const handleShow = () => setShow(true);
   const handleClose = () => setShow(false);
+  const handleDelete = async (id) => {
+    await deleteUrheilija(id);
+    urheilijaContext.setUrheilijat(urheilijaContext.urheilijat.filter((urheilija) => urheilija.id !== id));
+  };
 
   return (
       <Container style={borderStyle}>
@@ -58,6 +63,7 @@ function App() {
                 <Card.Text>{urheilija.etunimi}</Card.Text>
                 <Card.Text>{urheilija.sukunimi}</Card.Text>
                 <Button variant="primary">Lisätiedot</Button>
+                <Button variant="danger" onClick={() => handleDelete(urheilija.id)}>Poista</Button>
               </Card.Body>
             </Card>
           ))}

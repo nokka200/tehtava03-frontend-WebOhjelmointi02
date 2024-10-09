@@ -12,4 +12,9 @@ const postUrheilija = async (newUrheilija) => {
   return response.data;
 };
 
-export { getAll, postUrheilija };
+const deleteUrheilija = async (id) => {
+  const response = await axios.delete(`${baseUrl}/${id}`);
+  return response.data;
+}
+
+export { getAll, postUrheilija, deleteUrheilija };
